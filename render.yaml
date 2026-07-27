@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: royale-international-backend
+    runtime: node
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npx prisma migrate deploy && npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: ADMIN_EMAILS
+        value: swifttings@gmail.com,isaacrobinson087@gmail.com

@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ShipmentStatus {
+  SHIPMENT_CREATED
+  SHIPMENT_RECEIVED
+  PICKED_UP
+  IN_TRANSIT
+  AT_SORTING_FACILITY
+  AT_DESTINATION_HUB
+  CUSTOMS_CLEARANCE
+  OUT_FOR_DELIVERY
+  DELIVERED
+  DELAYED
+  EXCEPTION
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  lastLoginAt  DateTime?
+}
+
+model Shipment {
+  id                   String          @id @default(cuid())
+  trackingNumber       String          @unique
+  shipmentReference    String?
+  senderName           String
+  senderContact        String?
+  senderEmail          String?
+  recipientName        String
+  recipientContact     String?
+  recipientEmail       String?
+  origin               String
+  destination          String
+  currentLocation      String?
+  status               ShipmentStatus  @default(SHIPMENT_CREATED)
+  estimatedDeliveryDate DateTime?
+  archivedAt           DateTime?
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+  trackingEvents       TrackingEvent[]
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([senderName])
+  @@index([recipientName])
+  @@index([trackingNumber])
+}
+
+model TrackingEvent {
+  id             String         @id @default(cuid())
+  shipmentId     String
+  status         ShipmentStatus
+  location       String
+  description    String?
+  eventTimestamp DateTime       @default(now())
+  createdAt      DateTime       @default(now())
+  shipment       Shipment       @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  @@index([shipmentId, eventTimestamp])
+}
