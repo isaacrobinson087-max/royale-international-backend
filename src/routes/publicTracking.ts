@@ -12,7 +12,7 @@ const trackingLimiter = rateLimit({
 });
 
 router.get("/track/:trackingNumber", trackingLimiter, async (req, res) => {
-  const trackingNumber = req.params.trackingNumber.trim().toUpperCase();
+  const trackingNumber = String(req.params.trackingNumber).trim().toUpperCase();
 
   const shipment = await prisma.shipment.findFirst({
     where: {
